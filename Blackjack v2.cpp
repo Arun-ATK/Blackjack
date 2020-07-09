@@ -7,8 +7,7 @@
 #include <ctime>
 #include <cstdlib>
 #include "Enums.h"
-//#include "Card.h"
-//#include "Deck.h"
+#include "Constants.h"
 
 int randomNumberGenerator(int, int);
 
@@ -129,9 +128,9 @@ public:
         std::cout << '\n';
     }
 
-    bool crossed21()
+    bool crossedLimit(int limit = BlackjackConst::blackjack)
     {
-        if (m_points > 21) {
+        if (m_points > limit) {
             return true;
         }
         else {
@@ -185,8 +184,6 @@ void startScreen()
 
 int main()
 {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
-
     while (true) {
         system("cls");
         startScreen();
@@ -203,7 +200,7 @@ int main()
             player.showHand();
             std::cout << "Your points: " << player.getPoints() << std::endl;
 
-            if (player.crossed21()) {
+            if (player.crossedLimit()) {
                 std::cout << "You've exceeded 21! Game lost... \n";
                 break;
             }
@@ -213,27 +210,36 @@ int main()
                 player.addCard();
                 continue;
             }
-            else {
-                std::cout << "Your final score: " << player.getPoints() << std::endl;
-                std::cout << "Dealer's turn...\n";
+            break;
+        }
 
-                while (!dealer.crossed21()) {
-                    if (!dealer.higherThan(player)) {
-                        dealer.addCard();
-                        dealer.getPoints();
-                        continue;
-                    }
-                    else {
-                        std::cout << "Dealer got " << dealer.getPoints() << std::endl;
-                        std::cout << "You lose...\n";
-                        break;
-                    }
+        if (!player.crossedLimit()) {
+            std::cout << "Your final score: " << player.getPoints() << std::endl;
+            std::cout << "Dealer's turn...\n";
+
+            while (true) {
+                if (!dealer.crossedLimit() && !dealer.crossedLimit(BlackjackConst::dealerLimit)) {
+                    dealer.addCard();
+                    dealer.getPoints();
                 }
-                if(dealer.crossed21()) {
-                    std::cout << "Dealer crossed 21! " << dealer.getPoints() << std::endl;
-                    std::cout << "You win!\n";
+                else {
+                    break;
                 }
-                break;
+            }
+
+            if (dealer.crossedLimit()) {
+                std::cout << "Dealer crossed 21! " << dealer.getPoints() << std::endl;
+                std::cout << "You win!\n";
+            }
+
+            else if (dealer.higherThan(player)) {
+                std::cout << "Dealer got " << dealer.getPoints() << std::endl;
+                std::cout << "You lose...\n";
+            }
+
+            else {
+                std::cout << "Dealer got only " << dealer.getPoints() << std::endl;
+                std::cout << "You win!!!\n";
             }
         }
 
@@ -241,13 +247,25 @@ int main()
         if (!chooseOne()) {
             break;
         }
-    }
-
-    std::cout << "Press enter to exit.";
-    //std::cin.ignore(1000, '\n');
-    std::string exiter;
-    std::cin >> exiter;
+    } // New game loop
 
     return 0;
 }
 
+//while (!dealer.crossedLimit()) {
+//    if (!dealer.higherThan(player)) {
+//        dealer.addCard();
+//        dealer.getPoints();
+//        continue;
+//    }
+//    else {
+//        std::cout << "Dealer got " << dealer.getPoints() << std::endl;
+//        std::cout << "You lose...\n";
+//        break;
+//    }
+//}
+//if(dealer.crossedLimit()) {
+//    std::cout << "Dealer crossed 21! " << dealer.getPoints() << std::endl;
+//    std::cout << "You win!\n";
+//}
+//break;
